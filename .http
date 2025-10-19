@@ -1,0 +1,8 @@
+POST http://localhost:4000/api/projects
+Content-Type: application/json
+
+{
+  "projectName": "Ecommerce",
+  "clientName": "ADIDAS",
+  "description": "Proyecto Ecommerce"
+}
