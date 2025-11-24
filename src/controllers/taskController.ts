@@ -1,0 +1,93 @@
+import type {Request, Response} from 'express'
+import Project from '../Models/Project'
+import Task from '../Models/Task'
+
+export class TaskController {
+  static createTask = async (req: Request, res: Response) => {
+    try {
+      // Create the task
+      const task = new Task(req.body)
+
+      task.project = req.project.id // add the ProjectId
+
+      req.project.tasks.push(task) // add the Task to the Project
+
+      await Promise.allSettled([task.save(), req.project.save()])
+
+      res.send('Tarea creada correctamente')
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  static getProjectTasks = async (req: Request, res: Response) => {
+    try {
+      const tasks = await Task.find({ project: req.project.id }).populate('project')
+      res.json({ tasks })
+    } catch (error) {
+      res.status(500).json({error: 'Hubo un error'})
+    }
+  }
+
+  static getTaskById = async (req: Request, res: Response) => {
+    const { taskId } = req.params
+
+    try {
+
+      const task = req.task
+     
+      res.json(task)
+    
+    } catch (error) {
+      res.status(500).json({ error: 'Hubo un error' })
+    }
+  }
+
+  static updateTask = async (req: Request, res: Response) => {
+
+    try {
+      const task = req.task
+     
+      task.name = req.body.name
+      task.description = req.body.description
+      
+      await task.save()
+      res.send('Tarea actualizada correctamente')
+    } catch (error) {
+      res.status(500).json({ error: 'Hubo un error' })
+    }
+  }
+
+  static deleteTask = async (req: Request, res: Response) => {
+    const { taskId } = req.params
+
+    try {
+      const task = req.task
+
+      // Remove the task from the Project
+      req.project.tasks = req.project.tasks.filter(task => task.toString() !== taskId)
+
+      await Promise.allSettled([task.deleteOne(), req.project.save()])
+
+      res.send('Tarea eliminada correctamente')
+    } catch (error) {
+      res.status(500).json({ error: 'Hubo un error' })
+    }
+  }
+
+  static updateStatus = async (req: Request, res: Response) => {
+    try {
+
+      const task = req.task
+
+      // Update the task status
+      const { status } = req.body
+      task.status = status
+      await task.save()
+
+      res.send('Tarea actualizada correctamente')
+    } catch (error) {
+      console.log(error)
+    }
+  }
+}
