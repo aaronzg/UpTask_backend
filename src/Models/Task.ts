@@ -37,7 +37,7 @@ export const TaskSchema: Schema = new Schema({
     enum: Object.values(taskStatus),
     default: taskStatus.PENDING
   }
-})
+}, { timestamps: true })
 
 const Task = mongoose.model<ITask>('Task', TaskSchema)
 
