@@ -5,6 +5,7 @@ import ProjectRoutes from './Routes/projectRoutes'
 import cors from 'cors'
 import { corsConfig } from './config/cors'
 import morgan from 'morgan'
+import authRoutes from './Routes/authRoutes'
 
 dotenv.config()
 
@@ -24,5 +25,7 @@ app.use(morgan('dev'))
 
 // Routes
 app.use('/api/projects', ProjectRoutes)
+app.use('/api/auth', authRoutes)
+
 
 export default app
