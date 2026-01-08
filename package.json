@@ -21,6 +21,7 @@
     "express-validator": "^7.2.1",
     "mongoose": "^8.19.1",
     "morgan": "^1.10.1",
+    "nodemailer": "^7.0.12",
     "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
@@ -29,6 +30,7 @@
     "@types/bcrypt": "^6.0.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
-    "@types/morgan": "^1.9.10"
+    "@types/morgan": "^1.9.10",
+    "@types/nodemailer": "^7.0.4"
   }
 }
