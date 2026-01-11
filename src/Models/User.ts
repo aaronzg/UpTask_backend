@@ -1,9 +1,9 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Document, Schema } from 'mongoose'
 
-interface IUser extends Document  {
-  email: string,
-  password: string,
-  name: string,
+interface IUser extends Document {
+  email: string
+  password: string
+  name: string
   confirmed: boolean
 }
 
@@ -12,21 +12,21 @@ const userSchema: Schema = new Schema({
     type: String,
     required: true,
     lowercase: true,
-    unique: true
+    unique: true,
   },
   password: {
     type: String,
-    required: true
+    required: true,
   },
   name: {
     type: String,
     required: true,
-    unique: true
+    unique: false
   },
   confirmed: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 })
 
 const User = mongoose.model<IUser>('User', userSchema)
