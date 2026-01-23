@@ -6,20 +6,20 @@ interface IToken extends Document {
   createdAt: Date
 }
 
-const tokenSchema : Schema = new Schema({
+const tokenSchema: Schema = new Schema({
   token: {
     type: String,
-    required: true
+    required: true,
   },
   user: {
     type: Types.ObjectId,
-    ref: 'User'
+    ref: 'User',
   },
-  createdAt: {
+  expiresAt: {
     type: Date,
     default: Date.now(),
-    expires: '10m'
-  }
+    expires: '10m',
+  },
 })
 
 const Token = mongoose.model<IToken>('Token', tokenSchema)
