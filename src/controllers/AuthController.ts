@@ -5,6 +5,7 @@ import { generateToken } from '../utils/token'
 import Token from '../Models/Token'
 import { AuthEmail } from '../emails/AuthEmail'
 import { compare } from 'bcrypt'
+import { generateJWT } from '../utils/jwt'
 
 export class AuthController {
   static createAcount = async (req: Request, res: Response) => {
@@ -94,7 +95,9 @@ export class AuthController {
       if (!isPasswordCorrect)
         res.status(401).json({ error: 'Contraseña incorrecta' })
 
-      res.send('Iniciando sesion...')
+      // Create a sesion
+      const token = generateJWT()
+      res.send('JWT: ' + token)
     } catch (error) {
       console.log(error)
       res.status(500).json({ error: 'Hubo un error' })
