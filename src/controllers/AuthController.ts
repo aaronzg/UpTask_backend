@@ -96,7 +96,7 @@ export class AuthController {
         res.status(401).json({ error: 'Contraseña incorrecta' })
 
       // Create a sesion
-      const token = generateJWT()
+      const token = generateJWT({ id: user.id })
       res.send('JWT: ' + token)
     } catch (error) {
       console.log(error)
