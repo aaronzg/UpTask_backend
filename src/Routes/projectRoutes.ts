@@ -6,13 +6,15 @@ import { TaskController } from '../controllers/taskController'
 import { validateProjectExists } from '../middleware/project'
 import { taskBelongsToProject, validateTaskExists } from '../middleware/task'
 import { authenticate } from '../middleware/auth'
+import { TeamController } from '../controllers/TeamController'
 
 const router = Router()
+
+router.use(authenticate)
 
 // Create new Project
 router.post(
   '/',
-  authenticate,
   body('projectName')
     .notEmpty()
     .withMessage('El nombre del proyecto es Obligatorio'),
@@ -23,7 +25,7 @@ router.post(
     .notEmpty()
     .withMessage('La descripción del proyecto es Obligatoria'),
   handleInputErrors,
-  ProjectController.createProject
+  ProjectController.createProject,
 )
 
 // Get all Projects
@@ -32,7 +34,7 @@ router.get('/', ProjectController.getAllProjects)
 router.use(
   '/:id',
   param('id').isMongoId().withMessage('ID no valido'),
-  handleInputErrors
+  handleInputErrors,
 )
 
 // Get Project by id
@@ -50,7 +52,7 @@ router.put(
     .notEmpty()
     .withMessage('La descripción del proyecto es Obligatoria'),
   handleInputErrors,
-  ProjectController.updateProject
+  ProjectController.updateProject,
 )
 // Delete Project by ID
 router.delete('/:id', ProjectController.deleteProject)
@@ -72,7 +74,7 @@ router.post(
     .notEmpty()
     .withMessage('La descripción de la tarea es obigatoria'),
   handleInputErrors,
-  TaskController.createTask
+  TaskController.createTask,
 )
 
 // Get the tasks from a Project
@@ -89,22 +91,39 @@ router.put(
     .notEmpty()
     .withMessage('La descripción de la tarea es obigatoria'),
   handleInputErrors,
-  TaskController.updateTask
+  TaskController.updateTask,
 )
 
 // Delete task
-router.delete(
-  '/:projectId/tasks/:taskId',
-  TaskController.deleteTask
-)
+router.delete('/:projectId/tasks/:taskId', TaskController.deleteTask)
 
 // Update task state
-router.post('/:projectId/tasks/:taskId/status',
-  body('status')
-    .notEmpty().withMessage('El estado es obligatorio'),
+router.post(
+  '/:projectId/tasks/:taskId/status',
+  body('status').notEmpty().withMessage('El estado es obligatorio'),
   handleInputErrors,
-  TaskController.updateStatus
+  TaskController.updateStatus,
 )
 
+/** ROUTES FOR TEAMS **/
+router.post('/:projectId/team/find',
+  body('email').isEmail().toLowerCase().withMessage('Email no valido'),
+  handleInputErrors,
+  TeamController.findMemberByEmail
+)
+
+router.post(
+  '/:projectId/team',
+  body('id').isMongoId().withMessage('ID no valido'),
+  TeamController.addMemberById,
+)
+
+router.delete(
+  '/:projectId/team',
+  body('id').isMongoId().withMessage('ID no valido'),
+  TeamController.removeMemberById,
+)
+
+router.get('/:projectId/team', TeamController.getAllMembers)
+
 export default router
- 

@@ -27,13 +27,13 @@ export const authenticate = async (
     if (typeof decoded === 'object' && decoded.id) {
       // Verify user
       const user = await User.findById(decoded.id).select('_id name email')
-      if (user) return (req.user = user)
-
-      res.status(401).json({ error: 'Token no valido' })
+      if (user) {
+        req.user = user
+        return next()
+      }
+      return res.status(401).json({ error: 'Token no valido' })
     }
   } catch (error) {
     res.status(500).json({ error: 'Token no valido' })
   }
-
-  next()
 }

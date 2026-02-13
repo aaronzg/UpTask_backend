@@ -92,12 +92,13 @@ export class AuthController {
 
       // Validate password
       const isPasswordCorrect = await compare(password, user.password)
+      console.log(isPasswordCorrect, password)
       if (!isPasswordCorrect)
-        res.status(401).json({ error: 'Contraseña incorrecta' })
+        return res.status(401).json({ error: 'Contraseña incorrecta' })
 
       // Create a sesion
       const token = generateJWT({ id: user.id })
-      res.send('JWT: ' + token)
+      return res.send(token)
     } catch (error) {
       console.log(error)
       res.status(500).json({ error: 'Hubo un error' })
@@ -198,12 +199,16 @@ export class AuthController {
       user.password = await hashPassword(password) // hash password
 
       // Save the new password and delete the token
-      
+
       await Promise.allSettled([tokenExists.deleteOne(), user.save()])
 
       res.send('Se restablecio tu contraseña correctamente')
     } catch (error) {
       res.status(500).json({ error: 'Hubo un error' })
     }
+  }
+
+  static user = async (req: Request, res: Response) => {
+    return res.json(req.user)
   }
 }
