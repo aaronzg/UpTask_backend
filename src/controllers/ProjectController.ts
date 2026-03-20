@@ -5,7 +5,12 @@ export class ProjectController {
   static getAllProjects = async (req: Request, res: Response) => {
     try {
       // Find the projects of the user
-      const projects = await Project.find({ $or: [ {manager: {$in: req.user.id }} ] })
+      const projects = await Project.find({
+        $or: [
+          { manager: { $in: req.user.id } },
+          { team: { $in: req.user.id } },
+        ],
+      })
       res.json(projects)
     } catch (error) {
       console.log(error)
@@ -22,7 +27,6 @@ export class ProjectController {
       // Save it in the Database
       await project.save()
       return res.send('Proyecto Creado Correctamente')
-
     } catch (error) {
       console.log(error)
       return res.status(500).json({ error: 'Error al crear el proyecto' })
@@ -40,7 +44,7 @@ export class ProjectController {
         return res.status(404).json({ error: 'Proyecto no encontrado' })
 
       // Verify user autorization
-      if (project.manager.toString() === req.user.id) return res.json(project)
+      if (project.manager.toString() === req.user.id || project.team.includes(req.user.id)) return res.json(project)
 
       return res.status(401).json({ error: 'No autorizado' })
     } catch (error) {
@@ -54,7 +58,10 @@ export class ProjectController {
     try {
       const project = await Project.findById(id)
       // Verify user autorization
-      if (project.manager.toString() !== req.user.id) return res.status(401).json({ error: 'Solo el manager puede actualizar el proyecto' })
+      if (project.manager.toString() !== req.user.id)
+        return res
+          .status(401)
+          .json({ error: 'Solo el manager puede actualizar el proyecto' })
 
       project.clientName = req.body.clientName
       project.projectName = req.body.projectName
@@ -78,10 +85,12 @@ export class ProjectController {
       const project = await Project.findById(id)
       if (!project)
         return res.status(404).json({ error: 'Proyecto no encontrado' })
-      
+
       // Verify user autorization
       if (project.manager.toString() !== req.user.id)
-        return res.status(401).json({ error: 'Solo el manager puede eliminar el proyecto' })
+        return res
+          .status(401)
+          .json({ error: 'Solo el manager puede eliminar el proyecto' })
 
       await project.deleteOne()
       res.send('Producto eliminado correctamente')

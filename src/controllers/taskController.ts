@@ -1,4 +1,4 @@
-import type {Request, Response} from 'express'
+import type { Request, Response } from 'express'
 import Project from '../Models/Project'
 import Task from '../Models/Task'
 
@@ -22,35 +22,40 @@ export class TaskController {
 
   static getProjectTasks = async (req: Request, res: Response) => {
     try {
-      const tasks = await Task.find({ project: req.project.id }).populate('project')
+      const tasks = await Task.find({ project: req.project.id }).populate(
+        'project',
+      )
       res.json({ tasks })
     } catch (error) {
-      res.status(500).json({error: 'Hubo un error'})
+      res.status(500).json({ error: 'Hubo un error' })
     }
   }
 
   static getTaskById = async (req: Request, res: Response) => {
-    const { taskId } = req.params
-
     try {
+      const task = await Task.findById(req.task.id)
+        .populate({
+          path: 'completedBy.user',
+          select: 'id name email',
+        })
+        .populate({
+          path: 'notes',
+          populate: { path: 'createdBy', select: 'id email name' }
+        })
 
-      const task = req.task
-     
-      res.json(task)
-    
+      return res.json(task)
     } catch (error) {
       res.status(500).json({ error: 'Hubo un error' })
     }
   }
 
   static updateTask = async (req: Request, res: Response) => {
-
     try {
       const task = req.task
-     
+
       task.name = req.body.name
       task.description = req.body.description
-      
+
       await task.save()
       res.send('Tarea actualizada correctamente')
     } catch (error) {
@@ -65,7 +70,9 @@ export class TaskController {
       const task = req.task
 
       // Remove the task from the Project
-      req.project.tasks = req.project.tasks.filter(task => task.toString() !== taskId)
+      req.project.tasks = req.project.tasks.filter(
+        (task) => task.toString() !== taskId,
+      )
 
       await Promise.allSettled([task.deleteOne(), req.project.save()])
 
@@ -77,15 +84,22 @@ export class TaskController {
 
   static updateStatus = async (req: Request, res: Response) => {
     try {
-
       const task = req.task
 
       // Update the task status
       const { status } = req.body
       task.status = status
+
+      const data = {
+        user: req.user.id,
+        status,
+      }
+
+      task.completedBy.push(data)
+
       await task.save()
 
-      res.send('Tarea actualizada correctamente')
+      return res.send('Tarea actualizada correctamente')
     } catch (error) {
       console.log(error)
     }

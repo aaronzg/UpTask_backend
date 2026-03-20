@@ -1,5 +1,5 @@
 import type { Response, Request, NextFunction } from 'express'
-import Task, {ITask} from '../Models/Task'
+import Task, { ITask } from '../Models/Task'
 
 declare global {
   namespace Express {
@@ -12,15 +12,14 @@ declare global {
 export const validateTaskExists = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { taskId } = req.params
     // Check if the project exists
     const task = await Task.findById(taskId)
 
-    if (!task)
-      return res.status(404).json({ error: 'Tarea no encontrada' })
+    if (!task) return res.status(404).json({ error: 'Tarea no encontrada' })
 
     req.task = task
 
@@ -33,15 +32,25 @@ export const validateTaskExists = async (
 export const taskBelongsToProject = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
-    if(req.task.project.toString() !== req.project.id.toString()) {
-      return res.status(400).json({error: 'Acción no valida'})
+    if (req.task.project.toString() !== req.project.id.toString()) {
+      return res.status(400).json({ error: 'Acción no valida' })
     }
 
     next()
   } catch (error) {
     console.log(error)
   }
+}
+
+export const hasAuthorization = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  if (req.project.manager.toString() !== req.user.id.toString())
+    return res.status(400).json({ error: 'Acción no valida' })
+  next()
 }
